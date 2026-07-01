@@ -119,7 +119,7 @@ function sortNotesForStrum(notes: string[]): string[] {
 
 export async function playGuitarChord(
   notes: string[],
-  duration = "2n",
+  duration: Tone.Unit.Time = "2n",
   time?: number,
   strumMs = 45
 ) {
@@ -137,13 +137,11 @@ export async function playGuitarChord(
       pluck.triggerAttackRelease(note, duration, at);
     }
   });
-
-  void voice;
 }
 
 export async function playGuitarNote(
   note: string,
-  duration = "8n",
+  duration: Tone.Unit.Time = "8n",
   time?: number
 ) {
   const { sampler, pluck, samplesReady } = await getGuitarEngine();
