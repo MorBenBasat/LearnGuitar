@@ -11,6 +11,8 @@ const categories = [
   { id: "minor", label: "מינור" },
   { id: "dom7", label: "דומיננט 7" },
   { id: "maj7", label: "מז'ור 7" },
+  { id: "m7", label: "מינור 7" },
+  { id: "dim", label: "מוקטן" },
 ] as const;
 
 export default function ChordsPage() {

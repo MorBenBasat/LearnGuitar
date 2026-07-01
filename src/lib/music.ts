@@ -119,6 +119,7 @@ export const CHORD_NOTES: Record<string, NoteName[]> = {
   E7: ["E", "G#", "B", "D"],
   G7: ["G", "B", "D", "F"],
   Bdim: ["B", "D", "F"],
+  Dm7: ["D", "F", "A", "C"],
 };
 
 export function resolveChordNotes(chordSymbol: string): NoteName[] {
@@ -127,10 +128,12 @@ export function resolveChordNotes(chordSymbol: string): NoteName[] {
   if (CHORD_NOTES[normalized]) return CHORD_NOTES[normalized];
 
   // Simple major/minor parse
-  const match = chordSymbol.match(/^([A-G]#?)(m|maj7|7|dim)?$/);
+  const match = chordSymbol.match(/^([A-G]#?)(m7|maj7|m|7|dim)?$/);
   if (!match) return ["C", "E", "G"];
   const [, root, quality] = match;
   const r = root as NoteName;
+  if (quality === "m7")
+    return [r, transposeNote(r, 3), transposeNote(r, 7), transposeNote(r, 10)];
   if (quality === "m") return [r, transposeNote(r, 3), transposeNote(r, 7)];
   if (quality === "7")
     return [r, transposeNote(r, 4), transposeNote(r, 7), transposeNote(r, 10)];

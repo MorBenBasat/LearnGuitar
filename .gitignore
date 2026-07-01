@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# generated chord metadata (source is scripts/generate-chord-images.mjs)
+scripts/generated-chords.json
+
 # IDE / editor
 .cursor/
 .vscode/

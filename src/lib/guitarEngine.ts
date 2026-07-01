@@ -18,9 +18,12 @@ const GUITAR_SAMPLES: Record<string, string> = {
   "C5": "C5.mp3",
 };
 
+const PLUCK_VOICES = 8;
+
 type GuitarEngine = {
   sampler: Tone.Sampler;
-  pluck: Tone.PolySynth<Tone.PluckSynth>;
+  pluckVoices: Tone.PluckSynth[];
+  pluckIndex: number;
   output: Tone.Volume;
   samplesReady: boolean;
 };
@@ -28,15 +31,28 @@ type GuitarEngine = {
 let engine: GuitarEngine | null = null;
 let initPromise: Promise<GuitarEngine> | null = null;
 
-function createPluckVoice(): Tone.PolySynth<Tone.PluckSynth> {
-  const pluck = new Tone.PolySynth(Tone.PluckSynth, {
-    attackNoise: 4,
-    dampening: 3200,
-    resonance: 0.94,
+function createPluckVoices(destination: Tone.ToneAudioNode): Tone.PluckSynth[] {
+  return Array.from({ length: PLUCK_VOICES }, () => {
+    const pluck = new Tone.PluckSynth({
+      attackNoise: 4,
+      dampening: 3200,
+      resonance: 0.94,
+    });
+    pluck.volume.value = -6;
+    pluck.connect(destination);
+    return pluck;
   });
-  pluck.maxPolyphony = 10;
-  pluck.volume.value = -6;
-  return pluck;
+}
+
+function triggerPluck(
+  eng: GuitarEngine,
+  note: string,
+  duration: Tone.Unit.Time,
+  time: number
+) {
+  const voice = eng.pluckVoices[eng.pluckIndex % PLUCK_VOICES];
+  eng.pluckIndex += 1;
+  voice.triggerAttackRelease(note, duration, time);
 }
 
 async function createEngine(): Promise<GuitarEngine> {
@@ -70,10 +86,8 @@ async function createEngine(): Promise<GuitarEngine> {
   });
   sampler.connect(eq);
 
-  const pluck = createPluckVoice();
-  pluck.connect(eq);
+  const pluckVoices = createPluckVoices(eq);
 
-  // Wait briefly for samples; fall back to pluck if CDN is slow
   await Promise.race([
     new Promise<void>((resolve) => {
       if (sampler.loaded) {
@@ -95,7 +109,13 @@ async function createEngine(): Promise<GuitarEngine> {
     }),
   ]);
 
-  return { sampler, pluck, output, samplesReady };
+  return {
+    sampler,
+    pluckVoices,
+    pluckIndex: 0,
+    output,
+    samplesReady,
+  };
 }
 
 export async function getGuitarEngine(): Promise<GuitarEngine> {
@@ -112,8 +132,7 @@ export function midiToNote(midi: number): string {
 /** Strum chord like real guitar — low string first */
 function sortNotesForStrum(notes: string[]): string[] {
   return [...notes].sort(
-    (a, b) =>
-      Tone.Frequency(a).toMidi() - Tone.Frequency(b).toMidi()
+    (a, b) => Tone.Frequency(a).toMidi() - Tone.Frequency(b).toMidi()
   );
 }
 
@@ -123,18 +142,17 @@ export async function playGuitarChord(
   time?: number,
   strumMs = 45
 ) {
-  const { sampler, pluck, samplesReady } = await getGuitarEngine();
+  const eng = await getGuitarEngine();
   const t = time ?? Tone.now();
   const sorted = sortNotesForStrum(notes);
   const strumSec = strumMs / 1000;
-  const voice = samplesReady ? sampler : pluck;
 
   sorted.forEach((note, i) => {
     const at = t + i * strumSec;
-    if (samplesReady) {
-      sampler.triggerAttackRelease(note, duration, at);
+    if (eng.samplesReady) {
+      eng.sampler.triggerAttackRelease(note, duration, at);
     } else {
-      pluck.triggerAttackRelease(note, duration, at);
+      triggerPluck(eng, note, duration, at);
     }
   });
 }
@@ -144,10 +162,13 @@ export async function playGuitarNote(
   duration: Tone.Unit.Time = "8n",
   time?: number
 ) {
-  const { sampler, pluck, samplesReady } = await getGuitarEngine();
+  const eng = await getGuitarEngine();
   const t = time ?? Tone.now();
-  const voice = samplesReady ? sampler : pluck;
-  voice.triggerAttackRelease(note, duration, t);
+  if (eng.samplesReady) {
+    eng.sampler.triggerAttackRelease(note, duration, t);
+  } else {
+    triggerPluck(eng, note, duration, t);
+  }
 }
 
 export async function playGuitarNotesSequence(
@@ -155,17 +176,21 @@ export async function playGuitarNotesSequence(
   bpm = 80,
   startTime?: number
 ) {
-  const { sampler, pluck, samplesReady } = await getGuitarEngine();
-  const voice = samplesReady ? sampler : pluck;
+  const eng = await getGuitarEngine();
   const t0 = startTime ?? Tone.now();
   const interval = 60 / bpm;
 
   notes.forEach((note, i) => {
-    voice.triggerAttackRelease(note, "8n", t0 + i * interval);
+    const at = t0 + i * interval;
+    if (eng.samplesReady) {
+      eng.sampler.triggerAttackRelease(note, "8n", at);
+    } else {
+      triggerPluck(eng, note, "8n", at);
+    }
   });
 }
 
 export function releaseAllGuitar() {
-  engine?.sampler.releaseAll();
-  engine?.pluck.releaseAll();
+  if (!engine) return;
+  engine.sampler.releaseAll();
 }
