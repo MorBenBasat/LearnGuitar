@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
+import * as Tone from "tone";
 import { resolveChordNotes, noteNameToMidi, fretToMidi } from "@/lib/music";
 import type { NoteName } from "@/lib/music";
 import {
@@ -60,5 +61,28 @@ export function useAudio() {
     [ensureStarted]
   );
 
-  return { playChord, playNote, playFret, playScale, ensureStarted };
+  const playFretSequence = useCallback(
+    async (
+      positions: { stringIndex: number; fret: number }[],
+      bpm = 80,
+      onStep?: (index: number) => void
+    ) => {
+      await ensureStarted();
+      const interval = 60 / bpm;
+      const t0 = Tone.now();
+
+      positions.forEach((pos, i) => {
+        const midi = fretToMidi(pos.stringIndex, pos.fret);
+        const note = midiToNote(midi);
+        const at = t0 + i * interval;
+        setTimeout(() => onStep?.(i), i * interval * 1000);
+        void playGuitarNote(note, "8n", at);
+      });
+
+      return positions.length * interval * 1000;
+    },
+    [ensureStarted]
+  );
+
+  return { playChord, playNote, playFret, playScale, playFretSequence, ensureStarted };
 }

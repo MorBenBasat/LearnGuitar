@@ -6,9 +6,9 @@ import { useState } from "react";
 
 const links = [
   { href: "/", label: "בית", icon: "🏠" },
-  { href: "/progressions", label: "פרוגרשנים", icon: "🎵" },
   { href: "/scales", label: "סולמות", icon: "🎼" },
-  { href: "/improv", label: "אלתור", icon: "✨" },
+  { href: "/practice", label: "תרגול", icon: "🎯" },
+  { href: "/progressions", label: "שירים", icon: "🎵" },
   { href: "/chords", label: "אקורדים", icon: "🎸" },
 ];
 
@@ -29,12 +29,11 @@ export function Navigation() {
           <div className="flex flex-col leading-tight">
             <span className="text-base font-bold text-amber-400">LearnGuitar</span>
             <span className="hidden text-[10px] text-stone-500 sm:block">
-              פרוגרשנים · סולמות · אלתור
+              סולמות · שירים · תרגול
             </span>
           </div>
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex">
           {links.map((link) => {
             const active = pathname === link.href;
@@ -55,7 +54,6 @@ export function Navigation() {
           })}
         </nav>
 
-        {/* Mobile menu button */}
         <button
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -66,7 +64,6 @@ export function Navigation() {
         </button>
       </div>
 
-      {/* Mobile nav */}
       {menuOpen && (
         <nav className="border-t border-stone-800 bg-stone-950 px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">

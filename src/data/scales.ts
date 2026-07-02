@@ -33,7 +33,7 @@ export const scales: ScaleInfo[] = [
     name: "Natural Minor (Aeolian)",
     nameHe: "מינור טבעי (איוליאן)",
     intervals: [0, 2, 3, 5, 7, 8, 10],
-    degrees: ["1", "b2", "b3", "4", "5", "b6", "b7"],
+    degrees: ["1", "2", "b3", "4", "5", "b6", "b7"],
     description: "צליל עצוב, רגשי, רוקי.",
     whenToUse: "כשהפרוגרשן מתחיל ב-vi, או על שירים מינוריים.",
     improvTips: [

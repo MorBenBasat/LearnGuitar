@@ -66,6 +66,8 @@ export function ScaleViewer({ scale }: ScaleViewerProps) {
         frets={12}
         scaleRoot={root}
         scaleIntervals={scale.intervals}
+        scaleDegrees={scale.degrees}
+        displayMode="tab"
       />
     </div>
   );

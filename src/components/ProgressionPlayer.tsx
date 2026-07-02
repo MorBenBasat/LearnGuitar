@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import type { Progression } from "@/data/progressions";
 import { resolveProgressionInKey } from "@/data/progressions";
+import { getChordMood } from "@/data/progressionPlayGuide";
 import { resolveChordNotes, noteNameToMidi, KEY_ROOTS } from "@/lib/music";
 import type { NoteName } from "@/lib/music";
 import { ChordCard } from "@/components/ChordCard";
@@ -17,10 +18,32 @@ import {
 
 interface ProgressionPlayerProps {
   progression: Progression;
+  controlledKey?: NoteName;
+  onKeyChange?: (key: NoteName) => void;
+  /** בלי ספרות רומיות — רק אקורדים */
+  plainMode?: boolean;
 }
 
-export function ProgressionPlayer({ progression }: ProgressionPlayerProps) {
-  const [key, setKey] = useState<NoteName>(progression.defaultKey);
+export function ProgressionPlayer({
+  progression,
+  controlledKey,
+  onKeyChange,
+  plainMode = true,
+}: ProgressionPlayerProps) {
+  const [internalKey, setInternalKey] = useState<NoteName>(progression.defaultKey);
+  const key = controlledKey ?? internalKey;
+
+  const setKey = (k: NoteName) => {
+    if (onKeyChange) onKeyChange(k);
+    else setInternalKey(k);
+  };
+
+  useEffect(() => {
+    if (controlledKey === undefined) {
+      setInternalKey(progression.defaultKey);
+    }
+  }, [progression.defaultKey, controlledKey]);
+
   const [playing, setPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [bpm, setBpm] = useState(progression.bpm);
@@ -110,7 +133,9 @@ export function ProgressionPlayer({ progression }: ProgressionPlayerProps) {
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-900/30 bg-stone-900/60 p-4">
         <div>
-          <label className="mb-1 block text-xs text-stone-500">טונאליות</label>
+          <label className="mb-1 block text-xs text-stone-500">
+            מפתח השיר
+          </label>
           <select
             value={key}
             onChange={(e) => setKey(e.target.value as NoteName)}
@@ -145,26 +170,37 @@ export function ProgressionPlayer({ progression }: ProgressionPlayerProps) {
               : "bg-amber-600 text-stone-950 hover:bg-amber-500"
           }`}
         >
-          {playing ? "⏹ עצור" : "▶ נגן פרוגרשן"}
+          {playing ? "⏹ עצור" : "▶ נגן שיר ברקע"}
         </button>
       </div>
 
       {/* Chord sequence */}
       <div className="flex flex-wrap justify-center gap-3">
-        {resolved.map((item, i) => (
-          <div
-            key={`${item.roman}-${i}`}
-            className={`flex flex-col items-center rounded-xl border px-5 py-4 transition-all ${
-              playing && currentIndex === i
-                ? "border-amber-400 bg-amber-600/20 scale-105 shadow-lg shadow-amber-500/20"
-                : "border-amber-900/30 bg-stone-900/40"
-            }`}
-          >
-            <span className="text-2xl font-bold text-amber-400">{item.chord}</span>
-            <span className="text-sm text-stone-500">{item.roman}</span>
-            <span className="text-xs text-stone-600">{item.bars} תיבות</span>
-          </div>
-        ))}
+        {resolved.map((item, i) => {
+          const mood = getChordMood(item.chord);
+          return (
+            <div
+              key={`${item.chord}-${i}`}
+              className={`flex flex-col items-center rounded-xl border px-5 py-4 transition-all ${
+                playing && currentIndex === i
+                  ? "border-amber-400 bg-amber-600/20 scale-105 shadow-lg shadow-amber-500/20"
+                  : "border-amber-900/30 bg-stone-900/40"
+              }`}
+            >
+              <span className="text-lg">{mood.emoji}</span>
+              <span className="text-2xl font-bold text-amber-400">
+                {item.chord}
+              </span>
+              {!plainMode && (
+                <span className="text-sm text-stone-500">{item.roman}</span>
+              )}
+              {plainMode && (
+                <span className="text-xs text-stone-500">{mood.label}</span>
+              )}
+              <span className="text-xs text-stone-600">{item.bars} תיבות</span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Chord diagrams for current key */}
