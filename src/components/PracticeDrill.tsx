@@ -131,6 +131,7 @@ export function PracticeDrill({
           progression={progression}
           controlledKey={songKey}
           hideChordDiagrams={isElectric}
+          compact
         />
       </div>
 

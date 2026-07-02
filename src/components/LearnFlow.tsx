@@ -16,7 +16,9 @@ import {
 import { getImprovLesson } from "@/data/improvLessons";
 import { getScaleRecommendation, getPentatonicBoxes } from "@/lib/musicTheory";
 import type { NoteName } from "@/lib/music";
+import { getScaleNotes, NOTE_NAMES_HE } from "@/lib/music";
 import { useAudio } from "@/hooks/useAudio";
+import Link from "next/link";
 
 type WizardStep = "genre" | "progression" | "lesson";
 
@@ -243,6 +245,32 @@ export function LearnFlow({
             <p className="mt-1 text-sm text-stone-400">
               {guide?.fretRangeHe ?? "פריטים 5–8"} · מרכז {rec.root}
             </p>
+            <div className="mt-3 rounded-xl border border-stone-800 bg-stone-950/40 p-3 text-sm text-stone-300">
+              <p className="text-xs text-stone-500">5 התווים של הסולם:</p>
+              <p className="mt-1 font-mono text-amber-300">
+                {getScaleNotes(rec.root, rec.scale.intervals).join("  ")}
+              </p>
+              <p className="mt-1 text-xs text-stone-500">
+                ({getScaleNotes(rec.root, rec.scale.intervals)
+                  .map((n) => NOTE_NAMES_HE[n])
+                  .join(" · ")})
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Link
+                  href={`/scales`}
+                  className="rounded-full bg-stone-800 px-4 py-1.5 text-xs text-stone-300 hover:bg-stone-700"
+                >
+                  פתח דף סולמות →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowDetails(true)}
+                  className="rounded-full bg-amber-600/20 px-4 py-1.5 text-xs text-amber-300 hover:bg-amber-600/30"
+                >
+                  הראה את הסולם על הצוואר ↓
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Practice — learn + drill in one place */}
