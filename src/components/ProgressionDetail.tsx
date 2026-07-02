@@ -11,9 +11,9 @@ import {
   getChordSequencePlain,
   getPlayGuide,
 } from "@/data/progressionPlayGuide";
-import { getPentatonicBoxes } from "@/lib/musicTheory";
-
-const PENT = [0, 3, 5, 7, 10];
+import { getImprovLesson } from "@/data/improvLessons";
+import { getScaleRecommendation, getPentatonicBoxes } from "@/lib/musicTheory";
+import { useMemo } from "react";
 
 interface ProgressionDetailProps {
   progression: Progression;
@@ -21,12 +21,20 @@ interface ProgressionDetailProps {
 
 export function ProgressionDetail({ progression }: ProgressionDetailProps) {
   const guide = getPlayGuide(progression.id);
+  const lesson = getImprovLesson(progression.id);
   const key = progression.defaultKey;
   const sequence = getChordSequencePlain(progression, key);
   const resolved = resolveProgressionInKey(progression, key);
-  const playRoot = guide?.playRoot ?? "A";
+
+  const rec = useMemo(
+    () => getScaleRecommendation(progression, key as NoteName),
+    [progression, key]
+  );
+
+  const playRoot = rec.root;
   const boxes = getPentatonicBoxes(playRoot, 17);
-  const box = boxes.find((b) => b.number === (guide?.boxNumber ?? 1)) ?? boxes[0];
+  const box =
+    boxes.find((b) => b.number === (guide?.boxNumber ?? 1)) ?? boxes[0];
 
   return (
     <section className="glass-card space-y-6 p-6 sm:p-8">
@@ -37,12 +45,9 @@ export function ProgressionDetail({ progression }: ProgressionDetailProps) {
         <h2 className="mt-2 text-3xl font-bold text-amber-400">
           {guide?.simpleNameHe ?? sequence}
         </h2>
-        <p className="mt-1 text-sm text-stone-500">
-          {progression.nickname}
-        </p>
+        <p className="mt-1 text-sm text-stone-500">{progression.nickname}</p>
       </div>
 
-      {/* Chords with mood — NO roman */}
       <div>
         <h3 className="mb-3 text-sm font-medium text-stone-400">
           האקורדים (לחץ ▶ למטה לשמוע)
@@ -80,6 +85,22 @@ export function ProgressionDetail({ progression }: ProgressionDetailProps) {
             <p className="text-stone-300">{guide.hearHe}</p>
           </div>
 
+          <div
+            className="rounded-xl border-2 p-5"
+            style={{
+              borderColor: `${rec.scale.color}44`,
+              backgroundColor: `${rec.scale.color}11`,
+            }}
+          >
+            <h3 className="mb-2 text-lg font-bold" style={{ color: rec.scale.color }}>
+              איזה סולם לנגן?
+            </h3>
+            <p className="text-sm text-stone-300">{rec.headlineHe}</p>
+            <p className="mt-2 text-sm text-stone-400">
+              {lesson?.whyScaleHe ?? rec.explanationHe}
+            </p>
+          </div>
+
           <div className="rounded-xl border-2 border-green-700/40 bg-green-950/25 p-5">
             <h3 className="mb-3 text-lg font-bold text-green-400">
               🎸 מה לנגן על הגיטרה (מעל השיר)
@@ -91,15 +112,16 @@ export function ProgressionDetail({ progression }: ProgressionDetailProps) {
                   {guide.fretRangeHe}
                 </p>
                 <p className="text-xs text-stone-500">
-                  אזור {guide.boxNumber} · מרכז {guide.playRoot}
+                  אזור {guide.boxNumber} · מרכז {playRoot}
                 </p>
               </div>
               <div className="rounded-lg bg-stone-950/50 p-3">
                 <p className="text-xs text-stone-500">השיר ב-{key}</p>
                 <p className="text-sm text-stone-300">
-                  הנגן בפריטים של <strong className="text-amber-400">{guide.playRoot}</strong>
+                  הנגן בפריטים של{" "}
+                  <strong className="text-amber-400">{playRoot}</strong>
                 </p>
-                <p className="text-xs text-stone-600 mt-1">
+                <p className="mt-1 text-xs text-stone-600">
                   (לא אותו אות — אבל זה מה שעובד)
                 </p>
               </div>
@@ -117,7 +139,8 @@ export function ProgressionDetail({ progression }: ProgressionDetailProps) {
           <Fretboard
             frets={17}
             scaleRoot={playRoot}
-            scaleIntervals={PENT}
+            scaleIntervals={rec.scale.intervals}
+            scaleDegrees={rec.scale.degrees}
             activeBox={box}
             displayMode="tab"
           />
@@ -128,9 +151,15 @@ export function ProgressionDetail({ progression }: ProgressionDetailProps) {
 
       <ProgressionPlayer progression={progression} plainMode />
 
-      <div className="text-center">
+      <div className="flex flex-wrap justify-center gap-3">
         <Link
-          href="/practice"
+          href={`/practice?tab=improv`}
+          className="inline-flex items-center gap-2 rounded-full bg-violet-600/20 px-5 py-2 text-sm text-violet-300 hover:bg-violet-600/30"
+        >
+          שילובי טאב מלאים לאלתור ←
+        </Link>
+        <Link
+          href="/practice?tab=song"
           className="inline-flex items-center gap-2 rounded-full bg-amber-600/20 px-5 py-2 text-sm text-amber-400 hover:bg-amber-600/30"
         >
           למד דרך שיר מלא ←

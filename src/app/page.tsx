@@ -1,100 +1,76 @@
 import Link from "next/link";
 
-const features = [
-  {
-    href: "/scales",
-    icon: "🎼",
-    title: "סולמות וקופסאות",
-    desc: "כל הסולמות — בחר C, A, G וקופסה 1–5 על הצוואר",
-    color: "from-violet-600/20 to-purple-900/10",
-    border: "border-violet-700/30 hover:border-violet-500/50",
-  },
-  {
-    href: "/practice",
-    icon: "🎯",
-    title: "תרגול",
-    desc: "למד דרך שיר, אלתור, ריצות סולם",
-    color: "from-rose-600/20 to-red-900/10",
-    border: "border-rose-700/30 hover:border-rose-500/50",
-  },
-  {
-    href: "/progressions",
-    icon: "🔁",
-    title: "שירים",
-    desc: "אקורדים בלי רומי — C, G, Am, F ועוד",
-    color: "from-amber-600/20 to-orange-900/10",
-    border: "border-amber-700/30 hover:border-amber-500/50",
-  },
-  {
-    href: "/chords",
-    icon: "🎸",
-    title: "אקורדים",
-    desc: "איך מנגנים C, Am, G — עם תמונה ושמע",
-    color: "from-stone-600/20 to-stone-900/10",
-    border: "border-stone-700/30 hover:border-stone-500/50",
-  },
+const genres = [
+  { id: "pop", emoji: "🎤", name: "פופ", desc: "C → G → Am → F" },
+  { id: "rock", emoji: "⚡", name: "רוק", desc: "G → C → D" },
+  { id: "blues", emoji: "🎷", name: "בלוז", desc: "12 תיבות A7-D7-E7" },
+  { id: "metal", emoji: "🤘", name: "מטאל", desc: "Am → G → F → E" },
+  { id: "jazz", emoji: "🎹", name: "ג'אז", desc: "Dm7 → G7 → C" },
+  { id: "mizrahi", emoji: "🌙", name: "מזרחי", desc: "C → Am → F → G" },
 ];
 
 export default function HomePage() {
   return (
-    <div className="space-y-10">
-      <section className="relative overflow-hidden rounded-3xl border border-amber-800/30 bg-gradient-to-br from-amber-950/60 via-stone-900/90 to-stone-950 p-8 shadow-2xl sm:p-12">
-        <div className="relative z-10 max-w-2xl">
-          <span className="mb-4 inline-block rounded-full border border-amber-700/40 bg-amber-950/50 px-4 py-1 text-xs font-medium text-amber-400">
-            לא צריך לדעת תיאוריה
-          </span>
-          <h1 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl">
-            <span className="bg-gradient-to-l from-amber-300 to-amber-600 bg-clip-text text-transparent">
-              לומדים דרך שיר
-            </span>
-            <br />
-            <span className="text-stone-200">לא דרך מילים מבלבלות</span>
-          </h1>
-          <p className="mb-8 text-lg leading-relaxed text-stone-400">
-            שיר אחד: C → G → Am → F. דרכו תבין מה זה אקורד שמח ועצוב,
-            איזה מספרי טאב לנגן, מה זה קופסה, ואיך לאלתר.
-          </p>
-          <Link href="/practice" className="btn-primary">
-            התחל — 6 שלבים מודרכים
-            <span aria-hidden>←</span>
-          </Link>
-        </div>
+    <div className="mx-auto max-w-3xl space-y-12">
+      <section className="text-center">
+        <h1 className="page-title">לומדים לאלתור על גיטרה</h1>
+        <p className="mx-auto mt-4 max-w-lg text-lg text-stone-400">
+          בוחרים ז&apos;אנר, לומדים פרוגרשן, רואים בדיוק איזה טאב לנגן על כל
+          אקורד.
+        </p>
+        <Link href="/learn" className="btn-primary mt-8">
+          התחל ללמוד
+          <span aria-hidden>←</span>
+        </Link>
       </section>
 
-      <section className="glass-card flex gap-4 p-6">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-600/20 text-2xl">
-          💡
-        </div>
-        <div>
-          <h2 className="mb-1 text-lg font-bold text-amber-400">
-            מה תלמד בשעה הראשונה
-          </h2>
-          <ul className="space-y-1 text-stone-300">
-            <li>• מה זה C, G, Am, F — בלחיצה ושמיעה</li>
-            <li>• למה Am עצוב (האות m)</li>
-            <li>• 4 שילובי טאב שתמיד עובדים</li>
-            <li>• מה זה קופסה ואיזו לבחור</li>
-            <li>• איך לנגן מעל השיר בפועל</li>
-          </ul>
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-6 text-2xl font-bold text-stone-100">מה יש כאן?</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
+      <section className="space-y-4">
+        <h2 className="text-center text-lg font-bold text-stone-300">
+          בחר סגנון והתחל
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {genres.map((g) => (
             <Link
-              key={f.title}
-              href={f.href}
-              className={`rounded-2xl border bg-gradient-to-br p-6 transition hover:-translate-y-1 ${f.color} ${f.border}`}
+              key={g.id}
+              href={`/learn?genre=${g.id}`}
+              className="flex items-center gap-4 rounded-2xl border border-stone-800 bg-stone-900/50 p-5 transition hover:border-amber-700/50"
             >
-              <span className="text-4xl">{f.icon}</span>
-              <h3 className="mt-4 text-xl font-bold text-stone-100">{f.title}</h3>
-              <p className="mt-2 text-sm text-stone-400">{f.desc}</p>
+              <span className="text-3xl">{g.emoji}</span>
+              <div className="text-right">
+                <p className="font-bold text-stone-100">{g.name}</p>
+                <p className="text-sm text-amber-600/80">{g.desc}</p>
+              </div>
             </Link>
           ))}
         </div>
       </section>
+
+      <section className="rounded-2xl border border-stone-800 bg-stone-900/40 p-6 text-center">
+        <h2 className="font-bold text-stone-200">איך זה עובד?</h2>
+        <div className="mt-4 grid gap-4 text-sm text-stone-400 sm:grid-cols-3">
+          <div>
+            <p className="text-2xl">1</p>
+            <p className="mt-1 font-medium text-stone-300">בוחרים ז&apos;אנר</p>
+            <p>פופ, בלוז, מטאל — לכל אחד פרוגרשנים שונים</p>
+          </div>
+          <div>
+            <p className="text-2xl">2</p>
+            <p className="mt-1 font-medium text-stone-300">לומדים את השיעור</p>
+            <p>סולם, טאב, ואיפה לנחות על כל אקורד</p>
+          </div>
+          <div>
+            <p className="text-2xl">3</p>
+            <p className="mt-1 font-medium text-stone-300">מתרגלים</p>
+            <p>שיר ברקע + נגינה שלך מעל</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="text-center">
+        <Link href="/progressions" className="text-sm text-stone-500 hover:text-amber-400">
+          כל הפרוגרשנים — ספרייה מלאה ←
+        </Link>
+      </div>
     </div>
   );
 }

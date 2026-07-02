@@ -4,8 +4,10 @@ import { transposeNote } from "@/lib/music";
 export interface ProgressionChord {
   roman: string;
   romanHe: string;
-  /** semitone offset from key root for diatonic chord root */
+  /** index into MAJOR_SCALE_DEGREES (ignored if semitoneOffset set) */
   degree: number;
+  /** semitones from key root — for non-diatonic chords (מטאל, אנדלוסית) */
+  semitoneOffset?: number;
   quality: "major" | "minor" | "dom7" | "dim" | "maj7";
   bars: number;
 }
@@ -51,9 +53,11 @@ const MAJOR_DEGREE_QUALITY: ProgressionChord["quality"][] = [
 export function getChordSymbolInKey(
   key: NoteName,
   degree: number,
-  quality: ProgressionChord["quality"]
+  quality: ProgressionChord["quality"],
+  semitoneOffset?: number
 ): string {
-  const root = transposeNote(key, MAJOR_SCALE_DEGREES[degree]);
+  const offset = semitoneOffset ?? MAJOR_SCALE_DEGREES[degree];
+  const root = transposeNote(key, offset);
   return `${root}${QUALITY_SUFFIX[quality]}`;
 }
 
@@ -63,7 +67,7 @@ export function resolveProgressionInKey(
 ): { roman: string; chord: string; bars: number }[] {
   return progression.chords.map((c) => ({
     roman: c.roman,
-    chord: getChordSymbolInKey(key, c.degree, c.quality),
+    chord: getChordSymbolInKey(key, c.degree, c.quality, c.semitoneOffset),
     bars: c.bars,
   }));
 }
@@ -237,6 +241,140 @@ export const progressions: Progression[] = [
       "נגן מלודיות פשוטות — חיקוי שירה",
     ],
     famousSongs: ["Stand By Me", "Every Breath You Take", "Beautiful Girls"],
+  },
+  {
+    id: "andalusian-metal",
+    name: "i – VII – VI – V",
+    nameHe: "i – VII – VI – V",
+    nickname: "אנדלוסית / מטאל",
+    chords: [
+      { roman: "i", romanHe: "טוניקה מינור", degree: 5, semitoneOffset: 0, quality: "minor", bars: 1 },
+      { roman: "VII", romanHe: "bVII", degree: 4, semitoneOffset: 10, quality: "major", bars: 1 },
+      { roman: "VI", romanHe: "bVI", degree: 3, semitoneOffset: 8, quality: "major", bars: 1 },
+      { roman: "V", romanHe: "V מז'ור", degree: 4, semitoneOffset: 7, quality: "major", bars: 1 },
+    ],
+    defaultKey: "A",
+    bpm: 120,
+    genre: "Metal / Flamenco",
+    genreHe: "מטאל / אנדלוסית",
+    explanation:
+      "Am – G – F – E. הפרוגרשן הכי מטאלי שיש — Stairway to Heaven, Hit the Road Jack, סולואים של Iron Maiden.",
+    whyItWorks:
+      "יורד צלע אחר צלע (Am→G→F→E) — כל אקורד 'נופל' חצי טון. ה-E המז'ורי בסוף יוצר מתח דרמטי לפני חזרה ל-Am.",
+    soloScale: "A Natural Minor (Aeolian)",
+    soloScaleHe: "לה מינור טבעי — פריטים 5–8 ו-12",
+    improvTips: [
+      "A natural minor על כל הפרוגרשן",
+      "נחיתות חזקות על שורשי אקורדים — Am=פריט 5, G=פריט 3, F=פריט 8, E=פריט 12",
+      "alternate picking, palm muting על הריף'ים",
+    ],
+    famousSongs: [
+      "Stairway to Heaven (חלק)",
+      "Hit the Road Jack",
+      "Sultans of Swing (חלקים)",
+    ],
+  },
+  {
+    id: "metal-em-power",
+    name: "i – VI – III – VII",
+    nameHe: "i – VI – III – VII",
+    nickname: "מטאל מינורי",
+    chords: [
+      { roman: "i", romanHe: "טוניקה מינור", degree: 0, semitoneOffset: 0, quality: "minor", bars: 1 },
+      { roman: "VI", romanHe: "bVI", degree: 3, semitoneOffset: 8, quality: "major", bars: 1 },
+      { roman: "III", romanHe: "bIII", degree: 2, semitoneOffset: 3, quality: "major", bars: 1 },
+      { roman: "VII", romanHe: "bVII", degree: 6, semitoneOffset: 10, quality: "major", bars: 1 },
+    ],
+    defaultKey: "E",
+    bpm: 140,
+    genre: "Metal",
+    genreHe: "מטאל",
+    explanation: "Em – C – G – D. פרוגרשן מטאל קלאסי — Metallica, Megadeth, סולואים אגרסיביים.",
+    whyItWorks:
+      "מתחיל ב-Em (מינור) — הטונאליות כולה מינורית. C ו-G מוסיפים עומק, D דוחף חזרה ל-Em.",
+    soloScale: "E Minor Pentatonic + Natural Minor",
+    soloScaleHe: "מי מינור פנטטוני — פריטים 0–3 ו-12",
+    improvTips: [
+      "E minor pentatonic — פריטים 0 ו-12 (פתוח ואוקטבה גבוהה)",
+      "סולואים מהירים עם alternate picking",
+      "נחיתה חזקה על E (מיתר E פתוח או פריט 12)",
+    ],
+    famousSongs: ["Nothing Else Matters (חלקים)", "Fade to Black", "שירי מטאל רבים"],
+  },
+  {
+    id: "rock-e-a-b",
+    name: "I – IV – V in E",
+    nameHe: "I – IV – V ב-E",
+    nickname: "רוק קלאסי ב-E",
+    chords: [
+      { roman: "I", romanHe: "טוניקה", degree: 0, semitoneOffset: 0, quality: "major", bars: 2 },
+      { roman: "IV", romanHe: "סאב-דומיננטה", degree: 3, semitoneOffset: 5, quality: "major", bars: 2 },
+      { roman: "V", romanHe: "דומיננטה", degree: 4, semitoneOffset: 7, quality: "major", bars: 2 },
+    ],
+    defaultKey: "E",
+    bpm: 130,
+    genre: "Rock",
+    genreHe: "רוק",
+    explanation: "E → A → B. פרוגרשן רוק קלאסי — בלי C, בלי Am. AC/DC, Highway to Hell, שירי רוק ב-E.",
+    whyItWorks: "שלושה אקורדים מז'וריים ב-E. עוצמה ישירה — power chords על E, A, B.",
+    soloScale: "E Major Pentatonic",
+    soloScaleHe: "מי מז'ור פנטטוני — פריטים 0–3 ו-12",
+    improvTips: [
+      "E major pentatonic — מיתר E פתוח",
+      "Power chords: E5, A5, B5",
+      "נגן פשוט, חזק, עם palm muting",
+    ],
+    famousSongs: ["Highway to Hell", "Wild Thing (ב-E)", "Twist and Shout"],
+  },
+  {
+    id: "pop-d-bm-g-a",
+    name: "I – vi – IV – V in D",
+    nameHe: "I – vi – IV – V ב-D",
+    nickname: "פופ ב-D",
+    chords: [
+      { roman: "I", romanHe: "טוניקה", degree: 0, semitoneOffset: 0, quality: "major", bars: 1 },
+      { roman: "vi", romanHe: "סאב-מדיאנטה", degree: 5, semitoneOffset: 9, quality: "minor", bars: 1 },
+      { roman: "IV", romanHe: "סאב-דומיננטה", degree: 3, semitoneOffset: 5, quality: "major", bars: 1 },
+      { roman: "V", romanHe: "דומיננטה", degree: 4, semitoneOffset: 7, quality: "major", bars: 1 },
+    ],
+    defaultKey: "D",
+    bpm: 100,
+    genre: "Pop",
+    genreHe: "פופ",
+    explanation: "D → Bm → G → A. לא C-G-Am-F! פרוגרשן פופ אחר לגמרי — שירים ב-D.",
+    whyItWorks: "Bm נותן רגע עצוב באמצע, G ו-A סוגרים שמח.",
+    soloScale: "D Major Pentatonic / B Minor Pentatonic",
+    soloScaleHe: "רה מז'ור פנטטוני — פריטים 5–8 (אזור Bm)",
+    improvTips: [
+      "B minor pentatonic על פריטים 7–10",
+      "נחיתה על D כשמגיע D, על Bm כשמגיע Bm",
+    ],
+    famousSongs: ["שירי פופ רבים ב-D", "Wonderwall (רעיון דומה)"],
+  },
+  {
+    id: "metal-thrash-power",
+    name: "i – bIII – IV in E",
+    nameHe: "Em – G – A",
+    nickname: "מטאל thrash",
+    chords: [
+      { roman: "i", romanHe: "טוניקה מינור", degree: 0, semitoneOffset: 0, quality: "minor", bars: 2 },
+      { roman: "bIII", romanHe: "bIII", degree: 2, semitoneOffset: 3, quality: "major", bars: 2 },
+      { roman: "IV", romanHe: "IV", degree: 3, semitoneOffset: 5, quality: "major", bars: 2 },
+    ],
+    defaultKey: "E",
+    bpm: 160,
+    genre: "Metal",
+    genreHe: "מטאל",
+    explanation: "Em → G → A. ריף מטאל מהיר — בלי C, בלי D. Thrash וספיד מטאל.",
+    whyItWorks: "שלושה power chords צמודים על הצוואר הנמוך. מהיר, אגרסיבי.",
+    soloScale: "E Minor Pentatonic",
+    soloScaleHe: "מי מינור פנטטוני",
+    improvTips: [
+      "E5 → G5 → A5 עם downstrokes",
+      "alternate picking",
+      "סולו בפריט 12",
+    ],
+    famousSongs: ["Metallica (סגנון)", "Megadeth riffs"],
   },
 ];
 

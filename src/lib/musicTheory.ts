@@ -95,15 +95,89 @@ export function getScaleRecommendation(
       return {
         scale: natMin,
         root: relativeMinor,
-        headlineHe: `${relativeMinor} Natural Minor`,
+        headlineHe: `${relativeMinor} מינור טבעי`,
         explanationHe: `פרוגרשן שמתחיל ב-${viChord} — הטונאליות הרגשית היא ${relativeMinor} מינור.`,
         whyItWorksHe:
           "כשהפרוגרשן פותח במינור, שחק על b3 ו-b7 — התווים הכי 'עצובים' בסולם.",
         alternateScale: {
           scale: byId("pentatonic-minor"),
           root: relativeMinor,
-          labelHe: `${relativeMinor} minor pentatonic — קל יותר`,
+          labelHe: `${relativeMinor} פנטטוני מינור — קל יותר`,
         },
+      };
+    }
+    case "andalusian-metal": {
+      const natMin = byId("natural-minor");
+      return {
+        scale: natMin,
+        root: key,
+        headlineHe: `${key} מינור טבעי — סולם המטאל`,
+        explanationHe: `על Am → G → F → E ב-${key}, נגן ${key} natural minor. פריטים 5–8 ו-12.`,
+        whyItWorksHe:
+          "פרוגרשן מינורי לגמרי. נחיתות חזקות על שורשי האקורדים = צליל מטאלי קלאסי.",
+        alternateScale: {
+          scale: byId("pentatonic-minor"),
+          root: key,
+          labelHe: `${key} פנטטוני מינור — לסולואים מהירים`,
+        },
+      };
+    }
+    case "metal-em-power": {
+      const pent = byId("pentatonic-minor");
+      const natMin = byId("natural-minor");
+      return {
+        scale: pent,
+        root: key,
+        headlineHe: `${key} פנטטוני מינור — מטאל`,
+        explanationHe: `על Em → C → G → D, נגן ${key} minor pentatonic. פריט 0 (פתוח) ופריט 12.`,
+        whyItWorksHe:
+          "מטאל = מינור + מהירות. פנטטוני מינור על E = הבסיס של סולואי Metallica.",
+        alternateScale: {
+          scale: natMin,
+          root: key,
+          labelHe: `${key} מינור טבעי — יותר תווים, יותר צבע`,
+        },
+      };
+    }
+    case "rock-e-a-b": {
+      const majPent = byId("pentatonic-major");
+      return {
+        scale: majPent,
+        root: key,
+        headlineHe: `${key} מז'ור פנטטוני — רוק ב-E`,
+        explanationHe: `על E → A → B, נגן ${key} major pentatonic. מיתר E פתוח ופריטים 0–3.`,
+        whyItWorksHe: "רוק קלאסי ב-E = power chords + pentatonic major. פשוט וחזק.",
+        alternateScale: {
+          scale: byId("blues"),
+          root: key,
+          labelHe: `${key} בלוז — לסולו עם attitude`,
+        },
+      };
+    }
+    case "pop-d-bm-g-a": {
+      const pentMinor = byId("pentatonic-minor");
+      const relativeMinor = transposeNote(key, 9); // Bm in D
+      return {
+        scale: pentMinor,
+        root: relativeMinor,
+        headlineHe: `${relativeMinor} מינור פנטטוני — פופ ב-D`,
+        explanationHe: `על D → Bm → G → A, נגן ${relativeMinor} minor pentatonic (פריטים 7–10).`,
+        whyItWorksHe: "Bm הוא האקורד הרגשי — B minor pentatonic עובד על כל הפרוגרשן.",
+        alternateScale: {
+          scale: byId("pentatonic-major"),
+          root: key,
+          labelHe: `${key} מז'ור פנטטוני — זווית שמחה יותר`,
+        },
+      };
+    }
+    case "metal-thrash-power": {
+      const pent = byId("pentatonic-minor");
+      return {
+        scale: pent,
+        root: key,
+        headlineHe: `${key} מינור פנטטוני — thrash`,
+        explanationHe: `על Em → G → A, נגן ${key} minor pentatonic. ריף + סולו בפריט 12.`,
+        whyItWorksHe: "thrash = Em-G-A power chords. אותו סולם מינור על E.",
       };
     }
   }

@@ -22,6 +22,8 @@ interface ProgressionPlayerProps {
   onKeyChange?: (key: NoteName) => void;
   /** בלי ספרות רומיות — רק אקורדים */
   plainMode?: boolean;
+  /** מסתיר דיאגרמות אקורדים פתוחים (רוק/מטאל) */
+  hideChordDiagrams?: boolean;
 }
 
 export function ProgressionPlayer({
@@ -29,6 +31,7 @@ export function ProgressionPlayer({
   controlledKey,
   onKeyChange,
   plainMode = true,
+  hideChordDiagrams = false,
 }: ProgressionPlayerProps) {
   const [internalKey, setInternalKey] = useState<NoteName>(progression.defaultKey);
   const key = controlledKey ?? internalKey;
@@ -204,6 +207,7 @@ export function ProgressionPlayer({
       </div>
 
       {/* Chord diagrams for current key */}
+      {!hideChordDiagrams && (
       <div>
         <h4 className="mb-3 text-sm font-medium text-stone-400">
           דיאגרמות אקורדים בטונאליות {key}
@@ -226,6 +230,13 @@ export function ProgressionPlayer({
           })}
         </div>
       </div>
+      )}
+      {hideChordDiagrams && (
+        <p className="rounded-xl border border-stone-800 bg-stone-900/40 p-4 text-center text-sm text-stone-400">
+          ברוק/מטאל — נגן <strong className="text-amber-400">Power Chords</strong>{" "}
+          (E5, A5...) מהשיעור, לא אקורדים פתוחים.
+        </p>
+      )}
     </div>
   );
 }

@@ -6,10 +6,10 @@ import { useState } from "react";
 
 const links = [
   { href: "/", label: "בית", icon: "🏠" },
+  { href: "/learn", label: "למידה", icon: "🎸" },
+  { href: "/progressions", label: "פרוגרשנים", icon: "🔁" },
   { href: "/scales", label: "סולמות", icon: "🎼" },
-  { href: "/practice", label: "תרגול", icon: "🎯" },
-  { href: "/progressions", label: "שירים", icon: "🎵" },
-  { href: "/chords", label: "אקורדים", icon: "🎸" },
+  { href: "/chords", label: "אקורדים", icon: "🎵" },
 ];
 
 export function Navigation() {
@@ -29,7 +29,7 @@ export function Navigation() {
           <div className="flex flex-col leading-tight">
             <span className="text-base font-bold text-amber-400">LearnGuitar</span>
             <span className="hidden text-[10px] text-stone-500 sm:block">
-              סולמות · שירים · תרגול
+              למידה · אלתור · אקורדים
             </span>
           </div>
         </Link>
