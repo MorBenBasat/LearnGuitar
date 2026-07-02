@@ -47,7 +47,7 @@ export function PlayAlongDemo({
   rec,
 }: PlayAlongDemoProps) {
   const [bpm, setBpm] = useState(progression.bpm);
-  const [mode, setMode] = useState<"idle" | "lick" | "scale">("idle");
+  const [mode, setMode] = useState<"idle" | "chords" | "lick" | "scale">("idle");
   const [activeSegment, setActiveSegment] = useState<number | null>(null);
   const [activeLickIndex, setActiveLickIndex] = useState<number | null>(null);
   const partRef = useRef<Tone.Part | null>(null);
@@ -103,7 +103,7 @@ export function PlayAlongDemo({
   }, []);
 
   const playTogether = useCallback(
-    async (kind: "lick" | "scale") => {
+    async (kind: "chords" | "lick" | "scale") => {
       if (mode === kind) {
         stop();
         return;
@@ -118,10 +118,7 @@ export function PlayAlongDemo({
       Tone.Transport.bpm.value = bpm;
       const schedule = kind === "lick" ? lickSchedule : null;
       const scaleEv = kind === "scale" ? scaleSchedule : null;
-      const loopEnd =
-        kind === "lick"
-          ? lickSchedule.loopDurationSec
-          : scaleSchedule.loopDurationSec;
+      const loopEnd = lickSchedule.loopDurationSec;
 
       type PartPayload =
         | { kind: "chord"; segmentIndex: number; chord: string }
@@ -129,9 +126,7 @@ export function PlayAlongDemo({
         | { kind: "scale"; segmentIndex: number; stringIndex: number; fret: number };
 
       const events: [number, PartPayload][] = [];
-
-      const segments =
-        kind === "lick" ? lickSchedule.segments : scaleSchedule.segments;
+      const segments = lickSchedule.segments;
 
       segments.forEach((seg) => {
         events.push([
@@ -303,6 +298,18 @@ export function PlayAlongDemo({
 
         <button
           type="button"
+          onClick={() => void playTogether("chords")}
+          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-95 ${
+            mode === "chords"
+              ? "bg-red-600/80 text-white hover:bg-red-500"
+              : "border border-stone-600/50 bg-stone-900/40 text-stone-300 hover:bg-stone-800/60"
+          }`}
+        >
+          {mode === "chords" ? "⏹ עצור" : "▶ אקורדים בלבד"}
+        </button>
+
+        <button
+          type="button"
           onClick={() => void playTogether("lick")}
           className={`rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-95 ${
             mode === "lick"
@@ -327,6 +334,8 @@ export function PlayAlongDemo({
       </div>
 
       <p className="text-xs text-stone-500">
+        <strong className="text-stone-400">אקורדים בלבד:</strong> רק השיר ברקע —
+        תתרגל לנגן בעצמך.{" "}
         <strong className="text-stone-400">ליק + שיר:</strong> כל קבוצת תווים
         מושמעת כשהאקורד שלה מתנגן.{" "}
         <strong className="text-stone-400">נחיתות סולם:</strong> תו אחד על כל
