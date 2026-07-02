@@ -51,6 +51,7 @@ export function Fretboard({
 }: FretboardProps) {
   const { playFret } = useAudio();
   const board = useMemo(() => getFretboardNotes(frets), [frets]);
+  const fretColumns = frets + 1; // 0 = מיתר פתוח, 1..frets
 
   const scaleNotes = useMemo(() => {
     if (!scaleRoot || !scaleIntervals) return null;
@@ -84,23 +85,23 @@ export function Fretboard({
         {/* Nut line */}
         <div
           className="mb-1 grid grid-cols-[2.5rem_repeat(var(--frets),1fr)] gap-0"
-          style={{ "--frets": frets } as React.CSSProperties}
+          style={{ "--frets": fretColumns } as React.CSSProperties}
         >
           <div />
           <div
             className="col-span-full mr-10 h-1 rounded-full bg-gradient-to-r from-stone-500 to-stone-400"
-            style={{ gridColumn: `2 / span ${frets}` }}
+            style={{ gridColumn: `2 / span ${fretColumns}` }}
           />
         </div>
 
         {/* Fret numbers */}
         <div
           className="mb-2 grid grid-cols-[2.5rem_repeat(var(--frets),1fr)] gap-0"
-          style={{ "--frets": frets } as React.CSSProperties}
+          style={{ "--frets": fretColumns } as React.CSSProperties}
         >
           <div className="text-right pr-2 text-[9px] text-stone-600">פריט</div>
-          {Array.from({ length: frets }, (_, i) => {
-            const fretNum = i + 1;
+          {Array.from({ length: fretColumns }, (_, i) => {
+            const fretNum = i;
             const inBox = activeBox && isNoteInBox(fretNum, activeBox);
             return (
               <div
@@ -109,7 +110,7 @@ export function Fretboard({
                   inBox ? "text-amber-400 font-bold" : "text-amber-600/60"
                 }`}
               >
-                {fretNum}
+                {fretNum === 0 ? "פתוח" : fretNum}
               </div>
             );
           })}
@@ -121,7 +122,7 @@ export function Fretboard({
             <div
               key={si}
               className="grid grid-cols-[2.5rem_repeat(var(--frets),1fr)] items-center gap-0 border-b border-amber-900/15 py-1.5 last:border-0"
-              style={{ "--frets": frets } as React.CSSProperties}
+              style={{ "--frets": fretColumns } as React.CSSProperties}
             >
               <div className="text-right pr-2">
                 <span className="text-sm font-bold text-amber-500/90">
@@ -131,8 +132,7 @@ export function Fretboard({
                   <span className="block text-[8px] text-stone-600">{hint}</span>
                 )}
               </div>
-              {stringNotes.slice(1).map((note, fi) => {
-                const fret = fi + 1;
+              {stringNotes.map((note, fret) => {
                 const inScale = scaleNotes?.has(note);
                 const isRoot = scaleRoot === note && inScale;
                 const inBox = activeBox ? isNoteInBox(fret, activeBox) : true;
@@ -171,7 +171,9 @@ export function Fretboard({
                     {visible && !dimmed ? (
                       <>
                         {displayMode === "tab" && (
-                          <span className="text-sm font-bold">{fret}</span>
+                          <span className="text-sm font-bold">
+                            {fret === 0 ? "○" : fret}
+                          </span>
                         )}
                         {displayMode === "notes" && (
                           <span className="text-[11px] font-bold">{note}</span>
@@ -195,7 +197,7 @@ export function Fretboard({
 
         {activeBox && (
           <div className="mt-3 rounded-lg border border-amber-700/30 bg-amber-950/30 px-3 py-2 text-center text-xs text-amber-400">
-            {activeBox.nameHe}: לחץ על פריטים {activeBox.minFret}–{activeBox.maxFret}{" "}
+            {activeBox.nameHe}: לחץ על פריטים {activeBox.minFret === 0 ? "פתוח" : activeBox.minFret}–{activeBox.maxFret}{" "}
             (המספרים המוארים) · שאר הצוואר מעומעם
           </div>
         )}

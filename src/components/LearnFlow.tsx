@@ -17,6 +17,7 @@ import {
 import { getImprovLesson } from "@/data/improvLessons";
 import { getScaleRecommendation, getPentatonicBoxes } from "@/lib/musicTheory";
 import type { NoteName } from "@/lib/music";
+import { getScaleNotes, NOTE_NAMES_HE } from "@/lib/music";
 import { useAudio } from "@/hooks/useAudio";
 import Link from "next/link";
 
@@ -241,16 +242,28 @@ export function LearnFlow({
           />
 
           <div className="rounded-2xl border border-stone-800 bg-stone-900/40 p-4">
-            <p className="mb-3 text-sm font-bold text-stone-300">
+            <p className="mb-1 text-sm font-bold text-stone-300">
               הסולם על הצוואר — {rec.headlineHe}
             </p>
+            <p className="mb-3 font-mono text-sm text-amber-300">
+              {getScaleNotes(rec.root, rec.scale.intervals).join("  ")}
+              <span className="mr-2 text-xs text-stone-500">
+                ({getScaleNotes(rec.root, rec.scale.intervals)
+                  .map((n) => NOTE_NAMES_HE[n])
+                  .join(" · ")})
+              </span>
+            </p>
+            <p className="mb-3 text-xs text-stone-500">
+              זה הסולם האמיתי שרואים באינטרנט — 5 תווים. הזהב = שורש ({rec.root}).
+              עיגול ○ = מיתר פתוח (פריט 0).
+            </p>
             <Fretboard
-              frets={17}
+              frets={12}
               scaleRoot={rec.root}
               scaleIntervals={rec.scale.intervals}
               scaleDegrees={rec.scale.degrees}
               activeBox={activeBox}
-              displayMode="tab"
+              displayMode="notes"
             />
             <Link
               href="/scales"

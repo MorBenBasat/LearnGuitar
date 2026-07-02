@@ -304,7 +304,7 @@ export function getPentatonicBoxes(
   const anchor = findRootAnchorFret(root);
 
   return BOX_OFFSETS.map((offset, i) => {
-    const minFret = Math.max(1, anchor + offset.start);
+    const minFret = Math.max(0, anchor + offset.start);
     const maxF = Math.min(maxFret, anchor + offset.end);
     const meta = BOX_META[i];
     return {

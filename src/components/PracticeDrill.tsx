@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { ProgressionPlayer } from "@/components/ProgressionPlayer";
+import { PlayAlongDemo } from "@/components/PlayAlongDemo";
 import { TabLickCard } from "@/components/TabDiagram";
 import type { Progression } from "@/data/progressions";
 import type { ProgressionImprovLesson } from "@/data/improvLessons";
@@ -73,9 +74,19 @@ export function PracticeDrill({
       )}
 
       {mainLick && (
-        <div className="rounded-2xl border border-green-800/40 bg-green-950/15 p-5">
-          <p className="mb-3 text-sm font-bold text-green-400">
-            זה מה שאתה מתרגל — הליק הזה:
+        <PlayAlongDemo
+          progression={progression}
+          songKey={songKey}
+          lick={mainLick}
+          lesson={lesson}
+          rec={rec}
+        />
+      )}
+
+      {mainLick && (
+        <div className="rounded-2xl border border-stone-800 bg-stone-900/40 p-5">
+          <p className="mb-3 text-sm font-bold text-stone-400">
+            ליק בנפרד — בלי השיר ברקע:
           </p>
           <TabLickCard
             lick={mainLick}
@@ -105,15 +116,26 @@ export function PracticeDrill({
                 2
               </span>
               <span>
-                כשהשיר מתנגן — נגן את <strong>&quot;{mainLick.nameHe}&quot;</strong>{" "}
-                מעליו. שמע קודם (למעלה), ואז חזור על הגיטרה.
+                לחץ <strong>&quot;שמע ליק + שיר ביחד&quot;</strong> למעלה — שמע
+                בדיוק מתי כל תווים נכנסים על כל אקורד.
+              </span>
+            </li>
+          )}
+          {mainLick && (
+            <li className="flex gap-3 text-sm text-stone-300">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-stone-950">
+                3
+              </span>
+              <span>
+                חזור על הגיטרה — נגן את <strong>&quot;{mainLick.nameHe}&quot;</strong>{" "}
+                מעל <strong>נגן שיר ברקע</strong> למטה.
               </span>
             </li>
           )}
           {lesson && lesson.chordTargets[0] && (
             <li className="flex gap-3 text-sm text-stone-300">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-stone-950">
-                3
+                4
               </span>
               <span>
                 כשמגיע <strong>{lesson.chordTargets[0].chordSymbol}</strong> —{" "}
@@ -124,7 +146,7 @@ export function PracticeDrill({
           )}
           <li className="flex gap-3 text-sm text-stone-300">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-stone-950">
-              4
+              5
             </span>
             <span>
               חזור 3 סיבובים. אחרי זה — שנה תו אחד בליק. זה כבר אלתור.
@@ -134,7 +156,9 @@ export function PracticeDrill({
       </div>
 
       <div>
-        <p className="mb-3 text-sm text-stone-500">השיר ברקע — נגן מעליו:</p>
+        <p className="mb-3 text-sm text-stone-500">
+          תרגול עצמאי — רק השיר ברקע (בלי ליק):
+        </p>
         <ProgressionPlayer
           progression={progression}
           controlledKey={songKey}
