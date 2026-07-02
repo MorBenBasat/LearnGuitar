@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { LessonGuide } from "@/components/LessonGuide";
 import { ChordTargetCard } from "@/components/ChordTargetCard";
 import { Fretboard } from "@/components/Fretboard";
 import { ProgressionPlayer } from "@/components/ProgressionPlayer";
@@ -16,7 +17,6 @@ import {
 import { getImprovLesson } from "@/data/improvLessons";
 import { getScaleRecommendation, getPentatonicBoxes } from "@/lib/musicTheory";
 import type { NoteName } from "@/lib/music";
-import { getScaleNotes, NOTE_NAMES_HE } from "@/lib/music";
 import { useAudio } from "@/hooks/useAudio";
 import Link from "next/link";
 
@@ -109,6 +109,7 @@ export function LearnFlow({
   };
 
   const chordSequence = getChordSequencePlain(progression, key);
+  const isElectric = genreId === "rock" || genreId === "metal";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -230,50 +231,35 @@ export function LearnFlow({
             <p className="mt-1 text-stone-500">{progression.nickname}</p>
           </div>
 
-          {/* Scale — always visible, compact */}
-          <div
-            className="rounded-2xl border p-4"
-            style={{
-              borderColor: `${rec.scale.color}44`,
-              backgroundColor: `${rec.scale.color}11`,
-            }}
-          >
-            <p className="text-xs text-stone-500">איזה סולם לנגן מעל השיר?</p>
-            <p className="text-lg font-bold" style={{ color: rec.scale.color }}>
-              {rec.headlineHe}
+          <LessonGuide
+            genreId={genreId}
+            progression={progression}
+            songKey={key as NoteName}
+            chordSequence={chordSequence}
+            rec={rec}
+            playGuide={guide}
+          />
+
+          <div className="rounded-2xl border border-stone-800 bg-stone-900/40 p-4">
+            <p className="mb-3 text-sm font-bold text-stone-300">
+              הסולם על הצוואר — {rec.headlineHe}
             </p>
-            <p className="mt-1 text-sm text-stone-400">
-              {guide?.fretRangeHe ?? "פריטים 5–8"} · מרכז {rec.root}
-            </p>
-            <div className="mt-3 rounded-xl border border-stone-800 bg-stone-950/40 p-3 text-sm text-stone-300">
-              <p className="text-xs text-stone-500">5 התווים של הסולם:</p>
-              <p className="mt-1 font-mono text-amber-300">
-                {getScaleNotes(rec.root, rec.scale.intervals).join("  ")}
-              </p>
-              <p className="mt-1 text-xs text-stone-500">
-                ({getScaleNotes(rec.root, rec.scale.intervals)
-                  .map((n) => NOTE_NAMES_HE[n])
-                  .join(" · ")})
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Link
-                  href={`/scales`}
-                  className="rounded-full bg-stone-800 px-4 py-1.5 text-xs text-stone-300 hover:bg-stone-700"
-                >
-                  פתח דף סולמות →
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => setShowDetails(true)}
-                  className="rounded-full bg-amber-600/20 px-4 py-1.5 text-xs text-amber-300 hover:bg-amber-600/30"
-                >
-                  הראה את הסולם על הצוואר ↓
-                </button>
-              </div>
-            </div>
+            <Fretboard
+              frets={17}
+              scaleRoot={rec.root}
+              scaleIntervals={rec.scale.intervals}
+              scaleDegrees={rec.scale.degrees}
+              activeBox={activeBox}
+              displayMode="tab"
+            />
+            <Link
+              href="/scales"
+              className="mt-3 inline-block text-xs text-amber-500 hover:text-amber-400"
+            >
+              עוד על סולמות →
+            </Link>
           </div>
 
-          {/* Practice — learn + drill in one place */}
           <PracticeDrill
             progression={progression}
             lesson={lesson}
@@ -281,6 +267,7 @@ export function LearnFlow({
             songKey={key as NoteName}
             genreId={genreId}
             chordSequence={chordSequence}
+            hideSummary
           />
 
           {/* Optional details */}
@@ -289,20 +276,12 @@ export function LearnFlow({
             onClick={() => setShowDetails(!showDetails)}
             className="w-full rounded-xl border border-stone-800 py-3 text-sm text-stone-500 hover:text-stone-300"
           >
-            {showDetails ? "▲ הסתר פרטים נוספים" : "▼ רוצה לדעת עוד? (צוואר, אקורדים, עוד ליקים)"}
+            {showDetails ? "▲ הסתר פרטים נוספים" : "▼ רוצה לדעת עוד? (עוד ליקים, נחיתות על אקורדים)"}
           </button>
 
           {showDetails && (
             <div className="space-y-6 border-t border-stone-800 pt-6">
-              <Fretboard
-                frets={17}
-                scaleRoot={rec.root}
-                scaleIntervals={rec.scale.intervals}
-                scaleDegrees={rec.scale.degrees}
-                activeBox={activeBox}
-                displayMode="tab"
-              />
-              {(genreId === "rock" || genreId === "metal") && (
+              {isElectric && (
                 <PowerChordsSection
                   progression={progression}
                   songKey={key as NoteName}

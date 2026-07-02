@@ -28,7 +28,8 @@ export function TabDiagram({
     positions.map((p) => `${p.stringIndex}-${p.fret}`)
   );
   const frets = positions.map((p) => p.fret);
-  const minF = Math.max(1, Math.min(...frets) - 1);
+  const hasOpen = frets.some((f) => f === 0);
+  const minF = hasOpen ? 0 : Math.max(1, Math.min(...frets) - 1);
   const maxF = Math.max(...frets) + 1;
   const fretCols = Array.from(
     { length: maxF - minF + 1 },

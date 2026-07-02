@@ -5,52 +5,14 @@ import { TabDiagram } from "@/components/TabDiagram";
 import type { Progression } from "@/data/progressions";
 import { resolveProgressionInKey } from "@/data/progressions";
 import type { NoteName } from "@/lib/music";
-import { noteAtFret, STANDARD_TUNING } from "@/lib/music";
+import {
+  getPowerChordsForChords,
+  parseChordRoot,
+  pickPowerShape,
+} from "@/lib/powerChords";
 
-function parseChordRoot(chord: string): NoteName | null {
-  const m = chord.match(/^([A-G]#?)/);
-  return (m?.[1] as NoteName | undefined) ?? null;
-}
-
-function findFretForNoteOnString(open: NoteName, target: NoteName, maxFret = 12) {
-  for (let fret = 0; fret <= maxFret; fret++) {
-    if (noteAtFret(open, fret) === target) return fret;
-  }
-  return null;
-}
-
-type PowerChordShape =
-  | { kind: "E5"; rootFret: number }
-  | { kind: "A5"; rootFret: number };
-
-function pickShape(root: NoteName): PowerChordShape | null {
-  const eOpen = STANDARD_TUNING[0];
-  const aOpen = STANDARD_TUNING[1];
-  const eFret = findFretForNoteOnString(eOpen, root, 12);
-  const aFret = findFretForNoteOnString(aOpen, root, 12);
-
-  if (eFret === null && aFret === null) return null;
-  if (eFret !== null && eFret <= 7) return { kind: "E5", rootFret: eFret };
-  if (aFret !== null) return { kind: "A5", rootFret: aFret };
-  return { kind: "E5", rootFret: eFret ?? 0 };
-}
-
-function shapeToPositions(shape: PowerChordShape) {
-  // We'll show the clean 2-string shape (root + fifth).
-  // Optional: user can add the next string same fret+2 for a "thicker" power chord.
-  if (shape.kind === "E5") {
-    return [
-      { stringIndex: 0, fret: shape.rootFret }, // E string (low)
-      { stringIndex: 1, fret: shape.rootFret + 2 }, // A string
-    ];
-  }
-  return [
-    { stringIndex: 1, fret: shape.rootFret }, // A string
-    { stringIndex: 2, fret: shape.rootFret + 2 }, // D string
-  ];
-}
-
-function shapeTitle(root: NoteName, shape: PowerChordShape) {
+function shapeTitle(root: NoteName, shape: ReturnType<typeof pickPowerShape>) {
+  if (!shape) return `${root}5`;
   return shape.kind === "E5"
     ? `${root}5 (שורש על מיתר E)`
     : `${root}5 (שורש על מיתר A)`;
@@ -63,32 +25,15 @@ export function PowerChordsSection({
   progression: Progression;
   songKey: NoteName;
 }) {
-  const resolved = useMemo(
-    () => resolveProgressionInKey(progression, songKey),
-    [progression, songKey]
-  );
-
-  const uniqueChords = useMemo(() => {
-    const seen = new Set<string>();
-    return resolved
-      .map((r) => r.chord)
-      .filter((c) => (seen.has(c) ? false : (seen.add(c), true)));
-  }, [resolved]);
-
-  const items = uniqueChords
-    .map((ch) => {
-      const root = parseChordRoot(ch);
-      if (!root) return null;
-      const shape = pickShape(root);
-      if (!shape) return null;
-      return { chord: ch, root, shape, positions: shapeToPositions(shape) };
-    })
-    .filter(Boolean) as Array<{
-    chord: string;
-    root: NoteName;
-    shape: PowerChordShape;
-    positions: { stringIndex: number; fret: number }[];
-  }>;
+  const items = useMemo(() => {
+    const resolved = resolveProgressionInKey(progression, songKey);
+    const chords = resolved.map((r) => r.chord);
+    return getPowerChordsForChords(chords).map((it) => {
+      const root = parseChordRoot(it.chord)!;
+      const shape = pickPowerShape(root)!;
+      return { ...it, root, shape };
+    });
+  }, [progression, songKey]);
 
   if (items.length === 0) return null;
 
@@ -140,4 +85,3 @@ export function PowerChordsSection({
     </div>
   );
 }
-

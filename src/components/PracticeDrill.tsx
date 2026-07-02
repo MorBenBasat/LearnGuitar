@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ProgressionPlayer } from "@/components/ProgressionPlayer";
 import { TabLickCard } from "@/components/TabDiagram";
 import type { Progression } from "@/data/progressions";
-import { getChordSequencePlain } from "@/data/progressionPlayGuide";
 import type { ProgressionImprovLesson } from "@/data/improvLessons";
 import type { ScaleRecommendation } from "@/lib/musicTheory";
 import type { NoteName } from "@/lib/music";
@@ -18,6 +17,20 @@ interface PracticeDrillProps {
   songKey: NoteName;
   genreId: string;
   chordSequence: string;
+  hideSummary?: boolean;
+}
+
+function accompHint(genreId: string): string {
+  if (genreId === "rock" || genreId === "metal") {
+    return " — לליווי: power chords (E5, G5…). לסולו: הליק למטה.";
+  }
+  if (genreId === "blues") {
+    return " — לליווי: אקורדי 7. לסולו: סולם בלוז.";
+  }
+  if (genreId === "jazz") {
+    return " — לליווי: אקורדי ג'אז. לסולו: מלודיה קצרה על הסולם.";
+  }
+  return " — לליווי: אותם אקורדים. לסולו: הליק מעל השיר.";
 }
 
 export function PracticeDrill({
@@ -27,6 +40,7 @@ export function PracticeDrill({
   songKey,
   genreId,
   chordSequence,
+  hideSummary = false,
 }: PracticeDrillProps) {
   const mainLick = lesson?.tabLicks[0];
   const [playingLick, setPlayingLick] = useState(false);
@@ -48,21 +62,16 @@ export function PracticeDrill({
 
   return (
     <div className="space-y-6">
-      {/* What you learned - summary */}
-      <div className="rounded-2xl border-2 border-amber-700/40 bg-amber-950/20 p-5">
-        <p className="text-xs font-medium text-amber-500">מה למדת בשיעור הזה</p>
-        <p className="mt-1 text-xl font-bold text-amber-400">{chordSequence}</p>
-        <p className="mt-2 text-sm text-stone-300">
-          סולם: <strong>{rec.headlineHe}</strong>
-        </p>
-        {isElectric && (
-          <p className="mt-1 text-sm text-stone-400">
-            ליווי: Power chords (E5, A5 וכו&apos;) — לא אקורדים פתוחים
+      {!hideSummary && (
+        <div className="rounded-2xl border-2 border-amber-700/40 bg-amber-950/20 p-5">
+          <p className="text-xs font-medium text-amber-500">מה למדת בשיעור הזה</p>
+          <p className="mt-1 text-xl font-bold text-amber-400">{chordSequence}</p>
+          <p className="mt-2 text-sm text-stone-300">
+            סולם: <strong>{rec.headlineHe}</strong>
           </p>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* THE LICK TO PRACTICE */}
       {mainLick && (
         <div className="rounded-2xl border border-green-800/40 bg-green-950/15 p-5">
           <p className="mb-3 text-sm font-bold text-green-400">
@@ -77,17 +86,17 @@ export function PracticeDrill({
         </div>
       )}
 
-      {/* Concrete 5-minute drill */}
       <div className="rounded-2xl border border-stone-800 bg-stone-900/50 p-5">
-        <p className="mb-4 font-bold text-stone-200">תרגיל 5 דקות — עשה בדיוק את זה:</p>
+        <p className="mb-4 font-bold text-stone-200">תרגיל 5 דקות:</p>
         <ol className="space-y-3">
           <li className="flex gap-3 text-sm text-stone-300">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-stone-950">
               1
             </span>
             <span>
-              לחץ <strong>נגן שיר ברקע</strong> למטה. שמע את האקורדים:{" "}
+              לחץ <strong>נגן שיר ברקע</strong> למטה. שמע:{" "}
               <strong className="text-amber-400">{chordSequence}</strong>
+              {accompHint(genreId)}
             </span>
           </li>
           {mainLick && (
@@ -124,7 +133,6 @@ export function PracticeDrill({
         </ol>
       </div>
 
-      {/* Backing track */}
       <div>
         <p className="mb-3 text-sm text-stone-500">השיר ברקע — נגן מעליו:</p>
         <ProgressionPlayer

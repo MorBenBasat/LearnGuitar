@@ -175,9 +175,10 @@ export function getScaleRecommendation(
       return {
         scale: pent,
         root: key,
-        headlineHe: `${key} מינור פנטטוני — thrash`,
-        explanationHe: `על Em → G → A, נגן ${key} minor pentatonic. ריף + סולו בפריט 12.`,
-        whyItWorksHe: "thrash = Em-G-A power chords. אותו סולם מינור על E.",
+        headlineHe: `${key} minor pentatonic — 5 תווים לסולו`,
+        explanationHe: `השיר הוא Em → G → A. לסולו: סולם ${key} minor pentatonic — התווים E G A B D.`,
+        whyItWorksHe:
+          "זה אותו סולם שתראה ביוטיוב ובטאבים באינטרנט. מעל Em-G-A תמיד E minor pentatonic.",
       };
     }
   }
